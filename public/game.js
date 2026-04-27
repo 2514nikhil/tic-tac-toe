@@ -365,8 +365,14 @@ document.querySelectorAll('#game-board .cell').forEach(cell => {
     if (currentGame.turn !== me?.id) return;
     if (cell.classList.contains('taken')) return;
     if (cell.classList.contains('disabled')) return;
+    if (!mySymbol) return;
 
     const index = parseInt(cell.dataset.index);
+    // Optimistic UI: render immediately, then confirm via server update
+    currentGame.board[index] = mySymbol;
+    currentGame.turn = currentGame.player1.id === me.id ? currentGame.player2.id : currentGame.player1.id;
+    renderBoard(currentGame.board);
+    updateTurnUI(currentGame.turn);
     socket.emit('make_move', { gameId: currentGame.id, index });
   });
 });
