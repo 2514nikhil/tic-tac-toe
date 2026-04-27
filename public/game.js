@@ -603,24 +603,34 @@ if (emojiToggleBtn && emojiPicker) {
 
 socket.on('receive_emoji', ({ senderId, emoji }) => {
   const layer = $('emoji-layer');
-  if (!layer) return;
+  if (!layer || !currentGame) return;
 
   const el = document.createElement('div');
   el.className = 'floating-emoji';
   el.textContent = emoji;
 
-  const isMe = senderId === me?.id;
-  
-  // Random horizontal position within a range based on sender
-  const randomOffset = (Math.random() - 0.5) * 60;
-  
-  // Determine if it should spawn from my chip or opponent's chip
-  // For simplicity, spawn from bottom if 'me', spawn from top if 'opponent'
-  const startX = isMe ? window.innerWidth / 4 + randomOffset : window.innerWidth * 0.75 + randomOffset;
-  const startY = isMe ? window.innerHeight - 150 : 150;
-  
-  el.style.left = `${startX}px`;
-  el.style.top = `${startY}px`;
+  // Determine which player's info block to use
+  let playerChipId = null;
+  if (senderId === currentGame.player1?.id) {
+    playerChipId = 'game-p1-info';
+  } else if (senderId === currentGame.player2?.id) {
+    playerChipId = 'game-p2-info';
+  }
+
+  const chip = playerChipId ? $(playerChipId) : null;
+  if (chip) {
+    const rect = chip.getBoundingClientRect();
+    // Position below the chip, centered horizontally (approx 44px offset for center)
+    const startX = rect.left + rect.width / 2 - 44; 
+    const startY = rect.bottom; 
+
+    el.style.left = `${startX}px`;
+    el.style.top = `${startY}px`;
+  } else {
+    // Fallback
+    el.style.left = `50%`;
+    el.style.top = `50%`;
+  }
 
   layer.appendChild(el);
   
