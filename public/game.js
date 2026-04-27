@@ -1,6 +1,7 @@
 /* ─── game.js ─── Local TicTacToe Client ─── */
 
-const socket = io();
+const socketUrl = (window.APP_CONFIG && window.APP_CONFIG.socketUrl) || window.location.origin;
+const socket = io(socketUrl, { transports: ['websocket', 'polling'] });
 
 // ── State
 let me = null;             // { id, name, avatar, status }
