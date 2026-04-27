@@ -1,7 +1,6 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
-const os = require('os');
 const path = require('path');
 
 const app = express();
@@ -24,18 +23,6 @@ const pendingRematches = new Map(); // pairKey -> Set of socketIds who requested
 
 // Canonical key for a pair of players (order-independent)
 function pairKey(a, b) { return [a, b].sort().join('|'); }
-
-function getLocalIP() {
-  const nets = os.networkInterfaces();
-  for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-      if (net.family === 'IPv4' && !net.internal) {
-        return net.address;
-      }
-    }
-  }
-  return 'localhost';
-}
 
 function broadcastLobby() {
   const lobby = Array.from(players.values()).map(p => ({
@@ -401,15 +388,10 @@ io.on('connection', (socket) => {
   });
 });
 
-const localIP = getLocalIP();
 server.listen(PORT, '0.0.0.0', () => {
-  console.log('\n╔══════════════════════════════════════════════╗');
-  console.log('║     🎮  Local TicTacToe Server Running!       ║');
-  console.log('╠══════════════════════════════════════════════╣');
-  console.log(`║  Local:    http://localhost:${PORT}             ║`);
-  console.log(`║  Network:  http://${localIP}:${PORT}       ║`);
-  console.log('╠══════════════════════════════════════════════╣');
-  console.log('║  Share the Network URL with your friend!    ║');
-  console.log('║  Both must be on the same WiFi/Hotspot.     ║');
-  console.log('╚══════════════════════════════════════════════╝\n');
+  const externalUrl = process.env.RENDER_EXTERNAL_URL || process.env.EXTERNAL_URL;
+  if (externalUrl) {
+    console.log(`Render backend live at ${externalUrl}`);
+  }
+  console.log(`Server listening on port ${PORT}`);
 });
