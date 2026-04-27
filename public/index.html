@@ -146,9 +146,25 @@
     </div>
 
     <div class="game-footer">
+      <div class="emoji-container">
+        <button id="btn-emoji-toggle" class="btn btn-ghost" title="Send Emoji"><i class="ph-bold ph-smiley"></i></button>
+        <div id="emoji-picker" class="emoji-picker" style="display:none">
+          <button class="emoji-btn">😀</button>
+          <button class="emoji-btn">😂</button>
+          <button class="emoji-btn">😎</button>
+          <button class="emoji-btn">😭</button>
+          <button class="emoji-btn">😡</button>
+          <button class="emoji-btn">👍</button>
+          <button class="emoji-btn">👎</button>
+          <button class="emoji-btn">🎉</button>
+        </div>
+      </div>
       <button id="btn-forfeit" class="btn btn-ghost"><i class="ph-bold ph-flag"></i> Resign</button>
     </div>
   </div>
+
+  <!-- Container for floating emojis -->
+  <div id="emoji-layer" class="emoji-layer"></div>
 
   <!-- ── GAME OVER MODAL ── -->
   <div id="modal-gameover" class="modal-overlay" style="display:none">

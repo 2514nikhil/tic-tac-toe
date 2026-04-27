@@ -570,3 +570,59 @@ socket.on('connect_error', () => {
 socket.on('disconnect', () => {
   showToast('Disconnected from server.', 'error', 5000);
 });
+
+// ── Emojis
+const emojiToggleBtn = $('btn-emoji-toggle');
+const emojiPicker = $('emoji-picker');
+
+if (emojiToggleBtn && emojiPicker) {
+  emojiToggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    emojiPicker.style.display = emojiPicker.style.display === 'none' ? 'grid' : 'none';
+  });
+
+  // Hide when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!emojiPicker.contains(e.target) && !emojiToggleBtn.contains(e.target)) {
+      emojiPicker.style.display = 'none';
+    }
+  });
+
+  const emojiBtns = document.querySelectorAll('.emoji-btn');
+  emojiBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const emoji = btn.textContent;
+      if (currentGame) {
+        socket.emit('send_emoji', { gameId: currentGame.id, emoji });
+      }
+      emojiPicker.style.display = 'none';
+    });
+  });
+}
+
+socket.on('receive_emoji', ({ senderId, emoji }) => {
+  const layer = $('emoji-layer');
+  if (!layer) return;
+
+  const el = document.createElement('div');
+  el.className = 'floating-emoji';
+  el.textContent = emoji;
+
+  const isMe = senderId === me?.id;
+  
+  // Random horizontal position within a range based on sender
+  const randomOffset = (Math.random() - 0.5) * 60;
+  
+  // Determine if it should spawn from my chip or opponent's chip
+  // For simplicity, spawn from bottom if 'me', spawn from top if 'opponent'
+  const startX = isMe ? window.innerWidth / 4 + randomOffset : window.innerWidth * 0.75 + randomOffset;
+  const startY = isMe ? window.innerHeight - 150 : 150;
+  
+  el.style.left = `${startX}px`;
+  el.style.top = `${startY}px`;
+
+  layer.appendChild(el);
+  
+  setTimeout(() => el.remove(), 2500);
+});

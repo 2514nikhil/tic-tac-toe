@@ -333,6 +333,14 @@ io.on('connection', (socket) => {
     broadcastLobby();
   });
 
+  // Player sends an emoji
+  socket.on('send_emoji', ({ gameId, emoji }) => {
+    const game = games.get(gameId);
+    if (!game) return;
+    // Broadcast emoji to the room so both players can show it
+    io.to(gameId).emit('receive_emoji', { senderId: socket.id, emoji });
+  });
+
   // Disconnect
   socket.on('disconnect', () => {
     const player = players.get(socket.id);
