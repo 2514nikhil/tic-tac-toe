@@ -620,8 +620,8 @@ socket.on('receive_emoji', ({ senderId, emoji }) => {
   const chip = playerChipId ? $(playerChipId) : null;
   if (chip) {
     const rect = chip.getBoundingClientRect();
-    // Position below the chip, centered horizontally (approx 44px offset for center)
-    const startX = rect.left + rect.width / 2 - 44; 
+    // Position below the chip, centered horizontally (we use CSS translate(-50%, ...) for exact centering)
+    const startX = rect.left + rect.width / 2; 
     const startY = rect.bottom; 
 
     el.style.left = `${startX}px`;
