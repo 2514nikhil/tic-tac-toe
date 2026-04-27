@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local TicTacToe — WiFi Multiplayer</title>
+  <meta name="description" content="Play Tic-Tac-Toe with friends on the same WiFi network. Challenge, play, and win in real-time!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── SETUP SCREEN ── -->
+  <div id="screen-setup" class="screen active">
+    <div class="setup-card">
+      <div class="logo">
+        <span class="logo-x">X</span>
+        <span class="logo-dot">●</span>
+        <span class="logo-o">O</span>
+      </div>
+      <h1>Local TicTacToe</h1>
+      <p class="subtitle">WiFi Multiplayer — Same Network Required</p>
+
+      <div class="form-group">
+        <label for="player-name">Your Name</label>
+        <input id="player-name" type="text" placeholder="Enter your name..." maxlength="18" autocomplete="off" />
+      </div>
+
+      <div class="form-group">
+        <label>Choose Your Color</label>
+        <div class="avatar-row" id="avatar-row">
+          <button class="avatar-btn avatar-color-1 active" type="button" data-color="#6c63ff" aria-label="Select color violet" title="Violet"></button>
+          <button class="avatar-btn avatar-color-2" type="button" data-color="#ff6584" aria-label="Select color pink" title="Pink"></button>
+          <button class="avatar-btn avatar-color-3" type="button" data-color="#43e97b" aria-label="Select color green" title="Green"></button>
+          <button class="avatar-btn avatar-color-4" type="button" data-color="#f7971e" aria-label="Select color orange" title="Orange"></button>
+          <button class="avatar-btn avatar-color-5" type="button" data-color="#00c9ff" aria-label="Select color cyan" title="Cyan"></button>
+          <button class="avatar-btn avatar-color-6" type="button" data-color="#f953c6" aria-label="Select color magenta" title="Magenta"></button>
+          <button class="avatar-btn avatar-color-7" type="button" data-color="#fddb92" aria-label="Select color amber" title="Amber"></button>
+          <button class="avatar-btn avatar-color-8" type="button" data-color="#a8edea" aria-label="Select color mint" title="Mint"></button>
+        </div>
+      </div>
+
+      <button id="btn-join" class="btn btn-primary btn-lg">
+        <span>Join Lobby</span>
+        <i class="ph-bold ph-arrow-right btn-icon"></i>
+      </button>
+
+      <p class="hint">Both players must be on the same WiFi / Hotspot</p>
+    </div>
+  </div>
+
+  <!-- ── LOBBY SCREEN ── -->
+  <div id="screen-lobby" class="screen">
+    <div class="lobby-header">
+      <div class="my-profile" id="my-profile">
+        <!-- filled by JS -->
+      </div>
+      <div class="lobby-title">
+        <h2>Online Players</h2>
+        <span class="online-badge" id="online-count">0 online</span>
+      </div>
+    </div>
+
+    <div class="player-list" id="player-list">
+      <div class="empty-lobby">
+        <div class="empty-icon"><i class="ph-fill ph-users"></i></div>
+        <p>Waiting for others to join…</p>
+        <span>Share the server URL with your friend!</span>
+      </div>
+    </div>
+
+    <!-- Toast for challenges sent -->
+    <div class="challenge-sent-toast" id="challenge-toast" style="display:none">
+      <span id="challenge-toast-msg"></span>
+      <button id="btn-cancel-challenge">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ── INCOMING CHALLENGE MODAL ── -->
+  <div id="modal-challenge" class="modal-overlay" style="display:none">
+    <div class="modal-card">
+      <div class="modal-avatar" id="modal-challenger-avatar"></div>
+      <h3 id="modal-challenger-name">Player</h3>
+      <p>challenges you to a match!</p>
+      <div class="modal-actions">
+        <button id="btn-decline" class="btn btn-secondary">Decline</button>
+        <button id="btn-accept" class="btn btn-primary">Accept <i class="ph-bold ph-lightning"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── GAME SCREEN ── -->
+  <div id="screen-game" class="screen">
+    <!-- Player info bar -->
+    <div class="game-header">
+      <div class="player-info" id="game-p1-info">
+        <div class="player-chip">
+          <div class="chip-avatar" id="game-p1-avatar"></div>
+          <div class="chip-details">
+            <span class="chip-name" id="game-p1-name">Player 1</span>
+            <span class="chip-symbol">X</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-meta">
+        <div class="turn-indicator" id="turn-indicator">Your Turn</div>
+        <div class="score-display">
+          <span id="score-p1">0</span>
+          <span class="score-sep">—</span>
+          <span id="score-p2">0</span>
+        </div>
+      </div>
+
+      <div class="player-info align-right" id="game-p2-info">
+        <div class="player-chip reverse">
+          <div class="chip-avatar" id="game-p2-avatar"></div>
+          <div class="chip-details">
+            <span class="chip-name" id="game-p2-name">Player 2</span>
+            <span class="chip-symbol">O</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Board -->
+    <div class="board-container">
+      <div class="board" id="game-board">
+        <div class="cell" data-index="0"></div>
+        <div class="cell" data-index="1"></div>
+        <div class="cell" data-index="2"></div>
+        <div class="cell" data-index="3"></div>
+        <div class="cell" data-index="4"></div>
+        <div class="cell" data-index="5"></div>
+        <div class="cell" data-index="6"></div>
+        <div class="cell" data-index="7"></div>
+        <div class="cell" data-index="8"></div>
+        <!-- Win line overlay -->
+        <svg class="win-line-svg" id="win-line-svg" viewBox="0 0 3 3" preserveAspectRatio="none">
+          <line id="win-line" x1="0" y1="0" x2="0" y2="0" stroke="rgba(255,255,255,0.85)" stroke-width="0.12" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="game-footer">
+      <button id="btn-forfeit" class="btn btn-ghost"><i class="ph-bold ph-flag"></i> Resign</button>
+    </div>
+  </div>
+
+  <!-- ── GAME OVER MODAL ── -->
+  <div id="modal-gameover" class="modal-overlay" style="display:none">
+    <div class="modal-card gameover-card">
+      <div class="gameover-icon" id="gameover-icon"><i class="ph-fill ph-confetti"></i></div>
+      <h3 id="gameover-title">Game Over</h3>
+      <p id="gameover-subtitle">Result text here</p>
+      <div class="modal-actions">
+        <button id="btn-lobby" class="btn btn-secondary"><i class="ph-bold ph-house"></i> Lobby</button>
+        <button id="btn-rematch" class="btn btn-primary"><i class="ph-bold ph-arrows-clockwise"></i> Rematch</button>
+      </div>
+      <div id="rematch-waiting" style="display:none" class="rematch-waiting">
+        Waiting for opponent to accept…
+        <span class="dots"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REMATCH BANNER (small top strip, does not block game) ── -->
+  <div id="rematch-banner" class="rematch-banner" style="display:none">
+    <span class="rematch-banner-icon"><i class="ph-bold ph-arrows-clockwise"></i></span>
+    <span id="rematch-banner-msg">Opponent wants a rematch!</span>
+    <div class="rematch-banner-actions">
+      <button id="rematch-banner-decline" class="rbtn-decline">Decline</button>
+      <button id="rematch-banner-accept" class="rbtn-accept">Accept <i class="ph-bold ph-lightning"></i></button>
+    </div>
+  </div>
+
+  <!-- ── NOTIFICATION TOASTS ── -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
